@@ -1,0 +1,84 @@
+{
+  "name": "Session",
+  "type": "object",
+  "properties": {
+    "realm_id": {
+      "type": "string",
+      "description": "ID of the realm this session belongs to"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the session is scheduled to start"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "scheduled",
+      "description": "Current status of the session"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string"
+          },
+          "chosen_metaphor": {
+            "type": "string"
+          },
+          "relatability_stars": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "icebreaker_prompt": {
+            "type": "string"
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "maxItems": 5,
+      "description": "List of session participants"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 15,
+      "description": "Session duration in minutes"
+    },
+    "session_phases": {
+      "type": "object",
+      "properties": {
+        "intro_duration": {
+          "type": "number",
+          "default": 2
+        },
+        "core_sharing_duration": {
+          "type": "number",
+          "default": 10
+        },
+        "reflection_duration": {
+          "type": "number",
+          "default": 3
+        }
+      }
+    },
+    "room_code": {
+      "type": "string",
+      "description": "Unique code for the session room"
+    }
+  },
+  "required": [
+    "realm_id",
+    "scheduled_time"
+  ]
+}

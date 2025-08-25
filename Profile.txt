@@ -1,0 +1,218 @@
+import React, { useState, useEffect } from "react";
+import { User } from "@/entities/User";
+import { UserPreferences } from "@/entities/UserPreferences";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Star, Users, Calendar, Settings, Crown } from "lucide-react";
+
+export default function Profile() {
+  const [user, setUser] = useState(null);
+  const [preferences, setPreferences] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const userData = await User.me();
+      const prefData = await UserPreferences.filter({ created_by: userData.email });
+      
+      setUser(userData);
+      setPreferences(prefData[0] || {
+        user_type: "university_student",
+        subscription_type: "none",
+        ambient_sounds_enabled: true,
+        completed_sessions: 0
+      });
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    }
+    setIsLoading(false);
+  };
+
+  const handleSave = async () => {
+    if (!preferences) return;
+    
+    setIsSaving(true);
+    try {
+      if (preferences.id) {
+        await UserPreferences.update(preferences.id, preferences);
+      } else {
+        await UserPreferences.create(preferences);
+      }
+      await loadUserData();
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+    }
+    setIsSaving(false);
+  };
+
+  const updatePreference = (key, value) => {
+    setPreferences(prev => ({ ...prev, [key]: value }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="glass-morphism rounded-2xl p-8 animate-pulse">
+          <div className="h-8 bg-white/10 rounded mb-6 w-1/3"></div>
+          <div className="space-y-4">
+            <div className="h-4 bg-white/10 rounded"></div>
+            <div className="h-4 bg-white/10 rounded w-2/3"></div>
+            <div className="h-4 bg-white/10 rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      {/* Profile Header */}
+      <div className="glass-morphism rounded-3xl p-8 mb-8 text-center">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center mx-auto mb-6">
+          <span className="text-white text-2xl font-bold">
+            {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+          </span>
+        </div>
+        <h1 className="text-3xl font-bold text-amber-dark mb-2">{user?.full_name || 'User'}</h1>
+        <p className="text-amber-light text-lg mb-4">{user?.email}</p>
+        <div className="flex justify-center gap-4 flex-wrap">
+          <Badge className="bg-amber-200 text-amber-900 border-amber-300 px-4 py-2">
+            <Star className="w-4 h-4 mr-2" />
+            {preferences?.completed_sessions || 0} Circles Complete
+          </Badge>
+          <Badge className="bg-amber-300 text-amber-900 border-amber-400 px-4 py-2">
+            <Crown className="w-4 h-4 mr-2" />
+            {preferences?.subscription_type === 'monthly' ? 'Monthly Member' : 'Per Circle'}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Profile Settings */}
+      <div className="grid gap-6">
+        {/* Personal Information */}
+        <Card className="glass-morphism border-white/10">
+          <CardHeader>
+            <CardTitle className="text-amber-dark flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Personal Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="userType" className="text-amber-light">I am a...</Label>
+              <Select
+                value={preferences?.user_type || "university_student"}
+                onValueChange={(value) => updatePreference('user_type', value)}
+              >
+                <SelectTrigger className="glass-morphism border-white/20 text-amber-dark bg-amber-700/10">
+                  <SelectValue />
+                </SelectTrigger>
+                {/* Changed SelectItem text color for better readability on white background */}
+                <SelectContent className="bg-white">
+                  <SelectItem value="university_student" className="text-gray-900">University Student</SelectItem>
+                  <SelectItem value="corporate_employee" className="text-gray-900">Corporate Employee</SelectItem>
+                  <SelectItem value="digital_nomad" className="text-gray-900">Digital Nomad</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="timezone" className="text-amber-light">Timezone</Label>
+              <Input
+                id="timezone"
+                value={preferences?.timezone || ''}
+                onChange={(e) => updatePreference('timezone', e.target.value)}
+                placeholder="e.g., America/New_York"
+                className="glass-morphism border-white/20 text-amber-dark placeholder-amber-600 bg-amber-700/10"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preferences */}
+        <Card className="glass-morphism border-white/10">
+          <CardHeader>
+            <CardTitle className="text-amber-dark flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Session Preferences
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-amber-dark">Ambient Sounds</Label>
+                <p className="text-amber-light text-sm">Play soothing background sounds during sessions</p>
+              </div>
+              <Switch
+                checked={preferences?.ambient_sounds_enabled || false}
+                onCheckedChange={(checked) => updatePreference('ambient_sounds_enabled', checked)}
+              />
+            </div>
+
+            <div>
+              <Label className="text-amber-light">Preferred Session Times</Label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {['Morning (8-12)', 'Afternoon (12-17)', 'Evening (17-21)', 'Late Night (21-24)'].map((time) => (
+                  <Badge 
+                    key={time}
+                    variant="outline"
+                    className="bg-amber-100 text-amber-800 border-amber-200 cursor-pointer hover:bg-amber-200"
+                  >
+                    {time}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Subscription */}
+        <Card className="glass-morphism border-white/10">
+          <CardHeader>
+            <CardTitle className="text-amber-dark flex items-center gap-2">
+              <Crown className="w-5 h-5" />
+              Subscription
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-amber-light">Current Plan</Label>
+              <div className="mt-2">
+                <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2">
+                  {preferences?.subscription_type === 'monthly' ? 'Monthly Membership - $29/month' : 'Per Session - $12/session'}
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="pt-4 border-t border-white/10">
+              <Button className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white">
+                {preferences?.subscription_type === 'monthly' ? 'Manage Subscription' : 'Upgrade to Monthly'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Save Button */}
+        <div className="flex justify-end">
+          <Button 
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-3"
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
