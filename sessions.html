@@ -1,0 +1,214 @@
+<!-- templates/progress.html -->
+{% extends "base.html" %}
+
+{% block title %}My Progress - Mind Shelter{% endblock %}
+
+{% block content %}
+<div class="p-4 md:p-8 max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Your Journey</h1>
+        <p class="text-white/80 text-lg">Track your progress and celebrate your growth</p>
+    </div>
+
+    <!-- Current Streak & Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="glass-morphism border-white/10 p-6 text-center rounded-2xl">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="flame" class="w-6 h-6 text-white"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">{{ user_progress.current_streak or 0 }}</h3>
+            <p class="text-white/80">Day Streak</p>
+        </div>
+        
+        <div class="glass-morphism border-white/10 p-6 text-center rounded-2xl">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="users" class="w-6 h-6 text-white"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">{{ user_progress.total_sessions or 0 }}</h3>
+            <p class="text-white/80">Circle Sessions</p>
+        </div>
+        
+        <div class="glass-morphism border-white/10 p-6 text-center rounded-2xl">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="trophy" class="w-6 h-6 text-white"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">{{ (user_progress.badges_earned | from_json | length) if user_progress.badges_earned else 0 }}</h3>
+            <p class="text-white/80">Badges Earned</p>
+        </div>
+        
+        <div class="glass-morphism border-white/10 p-6 text-center rounded-2xl">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-1">
+                {% if recent_mood_avg %}{{ "%.1f"|format(recent_mood_avg) }}{% else %}--{% endif %}
+            </h3>
+            <p class="text-white/80">Avg Mood (7d)</p>
+        </div>
+    </div>
+
+    <!-- Mood Trends -->
+    <div class="glass-morphism border-white/10 rounded-2xl p-6 mb-8">
+        <h3 class="text-xl font-semibold text-white mb-6">Your Progress Trends</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Anxiety Trend -->
+            <div class="p-4 bg-white/5 rounded-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-white font-medium">Anxiety Level</h4>
+                    {% if user_progress.anxiety_trend %}
+                        {% if user_progress.anxiety_trend < 0 %}
+                        <span class="text-green-400 text-sm">↓ {{ "%.1f"|format(user_progress.anxiety_trend|abs) }}%</span>
+                        {% else %}
+                        <span class="text-orange-400 text-sm">↑ {{ "%.1f"|format(user_progress.anxiety_trend) }}%</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="w-full bg-white/10 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" 
+                         style="width: {{ (10 - (anxiety_avg or 5))*10 }}%"></div>
+                </div>
+                <p class="text-white/60 text-xs mt-1">Lower is better</p>
+            </div>
+
+            <!-- Sleep Quality -->
+            <div class="p-4 bg-white/5 rounded-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-white font-medium">Sleep Quality</h4>
+                    {% if user_progress.sleep_trend %}
+                        {% if user_progress.sleep_trend > 0 %}
+                        <span class="text-green-400 text-sm">↑ {{ "%.1f"|format(user_progress.sleep_trend) }}%</span>
+                        {% else %}
+                        <span class="text-orange-400 text-sm">↓ {{ "%.1f"|format(user_progress.sleep_trend|abs) }}%</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="w-full bg-white/10 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full" 
+                         style="width: {{ (sleep_avg or 5)*10 }}%"></div>
+                </div>
+                <p class="text-white/60 text-xs mt-1">Higher is better</p>
+            </div>
+
+            <!-- Work Stress -->
+            <div class="p-4 bg-white/5 rounded-xl">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-white font-medium">Work Stress</h4>
+                    {% if user_progress.work_stress_trend %}
+                        {% if user_progress.work_stress_trend < 0 %}
+                        <span class="text-green-400 text-sm">↓ {{ "%.1f"|format(user_progress.work_stress_trend|abs) }}%</span>
+                        {% else %}
+                        <span class="text-orange-400 text-sm">↑ {{ "%.1f"|format(user_progress.work_stress_trend) }}%</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="w-full bg-white/10 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full" 
+                         style="width: {{ (10 - (work_stress_avg or 5))*10 }}%"></div>
+                </div>
+                <p class="text-white/60 text-xs mt-1">Lower is better</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Badges -->
+    <div class="glass-morphism border-white/10 rounded-2xl p-6 mb-8">
+        <h3 class="text-xl font-semibold text-white mb-6">Achievement Badges</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {% set badges = user_progress.badges_earned | from_json if user_progress.badges_earned else [] %}
+            
+            <!-- First Session -->
+            <div class="badge-item p-4 text-center {{ 'opacity-100' if 'first_session' in badges else 'opacity-30' }}">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="star" class="w-8 h-8 text-white"></i>
+                </div>
+                <h4 class="text-white font-medium text-sm">First Circle</h4>
+            </div>
+
+            <!-- 7 Day Streak -->
+            <div class="badge-item p-4 text-center {{ 'opacity-100' if 'seven_day_streak' in badges else 'opacity-30' }}">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="flame" class="w-8 h-8 text-white"></i>
+                </div>
+                <h4 class="text-white font-medium text-sm">Week Warrior</h4>
+            </div>
+
+            <!-- 30 Day Streak -->
+            <div class="badge-item p-4 text-center {{ 'opacity-100' if 'thirty_day_streak' in badges else 'opacity-30' }}">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="crown" class="w-8 h-8 text-white"></i>
+                </div>
+                <h4 class="text-white font-medium text-sm">Month Master</h4>
+            </div>
+
+            <!-- Mood Improver -->
+            <div class="badge-item p-4 text-center {{ 'opacity-100' if 'mood_improver' in badges else 'opacity-30' }}">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="trending-up" class="w-8 h-8 text-white"></i>
+                </div>
+                <h4 class="text-white font-medium text-sm">Mood Booster</h4>
+            </div>
+
+            <!-- Supporter -->
+            <div class="badge-item p-4 text-center {{ 'opacity-100' if 'supporter' in badges else 'opacity-30' }}">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="heart" class="w-8 h-8 text-white"></i>
+                </div>
+                <h4 class="text-white font-medium text-sm">Supportive Soul</h4>
+            </div>
+
+            <!-- Storyteller -->
+            <div class="badge-item p-4 text-center {{ 'opacity-100' if 'storyteller' in badges else 'opacity-30' }}">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center mx-auto mb-2">
+                    <i data-lucide="book-open" class="w-8 h-8 text-white"></i>
+                </div>
+                <h4 class="text-white font-medium text-sm">Storyteller</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sessions -->
+    <div class="glass-morphism border-white/10 rounded-2xl p-6">
+        <h3 class="text-xl font-semibold text-white mb-6">Recent Circle Sessions</h3>
+        {% if recent_sessions %}
+            <div class="space-y-4">
+                {% for session in recent_sessions %}
+                <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                            <i data-lucide="users" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-medium">{{ session.realm.name }}</h4>
+                            <p class="text-white/60 text-sm">{{ session.scheduled_time.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        {% if session.participants and session.participants[0].post_session_mood %}
+                        <span class="text-white/80 text-sm">Mood: {{ session.participants[0].post_session_mood }}/10</span>
+                        {% endif %}
+                        {% if session.participants and session.participants[0].session_rating %}
+                        <div class="flex gap-1">
+                            {% for i in range(5) %}
+                            <i data-lucide="star" class="w-4 h-4 {{ 'text-yellow-400' if i < session.participants[0].session_rating else 'text-gray-400' }}"></i>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i data-lucide="calendar" class="w-16 h-16 text-white/40 mx-auto mb-4"></i>
+                <h4 class="text-white/80 text-lg mb-2">No sessions yet</h4>
+                <p class="text-white/60">Join your first circle to start tracking progress</p>
+                <a href="{{ url_for('home') }}" 
+                   class="mt-4 inline-block bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-medium">
+                    Explore Circles
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

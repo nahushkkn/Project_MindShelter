@@ -1,0 +1,174 @@
+<!-- templates/live_session.html -->
+{% extends "base.html" %}
+
+{% block title %}Live Session - Mind Shelter{% endblock %}
+
+{% block content %}
+<div class="h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-900 relative overflow-hidden">
+    <!-- Header -->
+    <div class="relative z-10 p-4 md:p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div class="glass-morphism rounded-2xl px-6 py-3">
+                <h1 class="text-2xl font-bold text-white">Mind Shelter</h1>
+                <p class="text-white/70 text-sm">{{ session.realm.name if session.realm else "Loading..." }} • Live Circle</p>
+            </div>
+            <div class="glass-morphism rounded-full px-4 py-2">
+                <div id="session-timer" class="text-2xl font-bold text-white">15:00</div>
+            </div>
+        </div>
+
+        <!-- Phase Indicator -->
+        <div class="glass-morphism rounded-2xl p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 id="phase-title" class="text-white font-semibold text-lg">Introduction</h2>
+                    <p class="text-white/70 text-sm">Current phase of our sharing circle</p>
+                </div>
+                <div id="phase-icon" class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mock Video Grid -->
+    <div class="relative z-10 px-4 md:px-6 pb-24">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            {% for i in range(5) %}
+            <div class="glass-morphism border-white/10 rounded-xl overflow-hidden">
+                <div class="aspect-video bg-gradient-to-br from-gray-400 to-gray-600 relative flex items-center justify-center">
+                    <div class="text-white text-4xl font-bold">{{ loop.index }}</div>
+                    <div class="absolute bottom-2 left-2">
+                        <div class="text-xs px-2 py-1 bg-white/20 text-white rounded">
+                            Participant {{ loop.index }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Initial Prompt -->
+    <div id="initial-prompt" class="fixed bottom-20 left-4 right-4 z-20">
+        <div class="glass-morphism rounded-xl p-4 max-w-2xl mx-auto border border-white/10">
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 flex items-center justify-center flex-shrink-0 mt-1">
+                    <span class="text-white font-bold text-xs">✨</span>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-white font-medium mb-1">Welcome to {{ session.realm.name if session.realm else "Your Circle" }}</h4>
+                    <p class="text-white/90 text-sm">
+                        {% if session.participants and session.participants[0].icebreaker_prompt %}
+                            {{ session.participants[0].icebreaker_prompt }}
+                        {% else %}
+                            Share your story with authenticity and listen with empathy.
+                        {% endif %}
+                    </p>
+                </div>
+                <button onclick="document.getElementById('initial-prompt').style.display='none'" 
+                        class="text-white/70 hover:text-white ml-auto text-xl">×</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+        <div class="flex items-center gap-4 glass-morphism rounded-full px-6 py-3">
+            <button id="mute-btn" class="rounded-full w-12 h-12 bg-white/10 text-white hover:bg-white/20 flex items-center justify-center">
+                <i data-lucide="mic" class="w-5 h-5"></i>
+            </button>
+            
+            <button id="video-btn" class="rounded-full w-12 h-12 bg-white/10 text-white hover:bg-white/20 flex items-center justify-center">
+                <i data-lucide="video" class="w-5 h-5"></i>
+            </button>
+
+            <div class="w-px h-8 bg-white/20"></div>
+
+            <button id="volume-btn" class="rounded-full w-12 h-12 bg-white/10 text-white hover:bg-white/20 flex items-center justify-center">
+                <i data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+
+            <button id="end-session-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full font-medium">
+                End Session
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let timeRemaining = 900; // 15 minutes
+    let currentPhase = "intro";
+    let isMuted = false;
+    let isVideoOff = false;
+    
+    const timer = document.getElementById('session-timer');
+    const phaseTitle = document.getElementById('phase-title');
+    const phaseIcon = document.getElementById('phase-icon');
+    const muteBtn = document.getElementById('mute-btn');
+    const videoBtn = document.getElementById('video-btn');
+    const endBtn = document.getElementById('end-session-btn');
+    
+    // Timer
+    const countdown = setInterval(() => {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Phase transitions
+        if (timeRemaining > 780) {
+            setPhase("intro", "Introduction", "from-blue-400 to-cyan-400");
+        } else if (timeRemaining > 180) {
+            setPhase("core", "Core Story Sharing", "from-purple-400 to-pink-400");
+        } else {
+            setPhase("reflection", "Reflection & Closing", "from-green-400 to-teal-400");
+        }
+        
+        timeRemaining--;
+        
+        if (timeRemaining < 0) {
+            clearInterval(countdown);
+            window.location.href = '/sessions';
+        }
+    }, 1000);
+    
+    function setPhase(phase, title, color) {
+        if (currentPhase !== phase) {
+            currentPhase = phase;
+            phaseTitle.textContent = title;
+            phaseIcon.className = `w-12 h-12 rounded-full bg-gradient-to-r ${color} flex items-center justify-center`;
+        }
+    }
+    
+    // Controls
+    muteBtn.addEventListener('click', function() {
+        isMuted = !isMuted;
+        const icon = this.querySelector('i');
+        icon.setAttribute('data-lucide', isMuted ? 'mic-off' : 'mic');
+        this.className = `rounded-full w-12 h-12 ${isMuted ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white'} hover:bg-white/20 flex items-center justify-center`;
+        lucide.createIcons();
+    });
+    
+    videoBtn.addEventListener('click', function() {
+        isVideoOff = !isVideoOff;
+        const icon = this.querySelector('i');
+        icon.setAttribute('data-lucide', isVideoOff ? 'video-off' : 'video');
+        this.className = `rounded-full w-12 h-12 ${isVideoOff ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white'} hover:bg-white/20 flex items-center justify-center`;
+        lucide.createIcons();
+    });
+    
+    endBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to end the session?')) {
+            window.location.href = '/sessions';
+        }
+    });
+    
+    // Hide initial prompt after 30 seconds
+    setTimeout(() => {
+        const prompt = document.getElementById('initial-prompt');
+        if (prompt) prompt.style.display = 'none';
+    }, 30000);
+});
+</script>
+{% endblock %}

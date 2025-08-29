@@ -1,0 +1,182 @@
+<!-- templates/mood_checkin.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ realm.name }} - Check In{% endblock %}
+
+{% block content %}
+<div class="p-4 md:p-8 max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+        <a href="{{ url_for('home') }}" class="glass-morphism text-white hover:bg-white/10 p-3 rounded-lg">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-white">{{ realm.name }}</h1>
+            <p class="text-white/80">Quick Check-in</p>
+        </div>
+    </div>
+
+    <!-- Mood Check-in -->
+    <div class="space-y-6">
+        <!-- Current Mood -->
+        <div class="glass-morphism rounded-2xl p-8 text-center">
+            <h2 class="text-2xl font-semibold text-white mb-6">How are you feeling right now?</h2>
+            <div class="flex justify-center gap-4 mb-8">
+                <div id="mood-scale" class="flex gap-2">
+                    {% for i in range(1, 11) %}
+                    <button class="mood-btn w-12 h-12 rounded-full border-2 border-white/30 text-white hover:bg-white/20 transition-all duration-200" 
+                            data-mood="{{ i }}">{{ i }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            <p class="text-white/60 text-sm">1 = Very Low • 10 = Excellent</p>
+        </div>
+
+        <!-- Focus Area -->
+        <div class="glass-morphism rounded-2xl p-8">
+            <h3 class="text-xl font-semibold text-white mb-6 text-center">What would you like to focus on today?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% if realm.category == 'anxiety' %}
+                <div class="focus-option p-4 border-2 border-white/20 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-white/10 transition-all" data-focus="anxiety">
+                    <div class="text-center">
+                        <i data-lucide="heart" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                        <h4 class="text-white font-medium">Managing Worry</h4>
+                        <p class="text-white/70 text-sm">Dealing with anxious thoughts</p>
+                    </div>
+                </div>
+                <div class="focus-option p-4 border-2 border-white/20 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-white/10 transition-all" data-focus="breathing">
+                    <div class="text-center">
+                        <i data-lucide="wind" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                        <h4 class="text-white font-medium">Finding Calm</h4>
+                        <p class="text-white/70 text-sm">Techniques for relaxation</p>
+                    </div>
+                </div>
+                {% elif realm.category == 'sleep' %}
+                <div class="focus-option p-4 border-2 border-white/20 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-white/10 transition-all" data-focus="falling_asleep">
+                    <div class="text-center">
+                        <i data-lucide="moon" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                        <h4 class="text-white font-medium">Falling Asleep</h4>
+                        <p class="text-white/70 text-sm">Trouble winding down</p>
+                    </div>
+                </div>
+                <div class="focus-option p-4 border-2 border-white/20 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-white/10 transition-all" data-focus="staying_asleep">
+                    <div class="text-center">
+                        <i data-lucide="clock" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                        <h4 class="text-white font-medium">Staying Asleep</h4>
+                        <p class="text-white/70 text-sm">Waking up at night</p>
+                    </div>
+                </div>
+                {% elif realm.category == 'work_stress' %}
+                <div class="focus-option p-4 border-2 border-white/20 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-white/10 transition-all" data-focus="workload">
+                    <div class="text-center">
+                        <i data-lucide="briefcase" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                        <h4 class="text-white font-medium">Heavy Workload</h4>
+                        <p class="text-white/70 text-sm">Feeling overwhelmed</p>
+                    </div>
+                </div>
+                <div class="focus-option p-4 border-2 border-white/20 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-white/10 transition-all" data-focus="boundaries">
+                    <div class="text-center">
+                        <i data-lucide="shield" class="w-8 h-8 text-white mx-auto mb-2"></i>
+                        <h4 class="text-white font-medium">Setting Boundaries</h4>
+                        <p class="text-white/70 text-sm">Work-life balance</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Optional Note -->
+        <div class="glass-morphism rounded-2xl p-6">
+            <label class="block text-white font-medium mb-3">Anything specific on your mind? (optional)</label>
+            <textarea id="mood-notes" 
+                      class="w-full px-4 py-3 glass-morphism border-white/20 text-white placeholder-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" 
+                      rows="3" 
+                      placeholder="Share what's happening in your life right now..."></textarea>
+        </div>
+
+        <!-- Join Session Button -->
+        <div class="text-center">
+            <button id="join-session-btn" 
+                    class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="users" class="w-5 h-5 mr-2 inline"></i>
+                Find My Circle
+            </button>
+            <p class="text-white/60 text-sm mt-2">We'll match you with others sharing similar experiences</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let selectedMood = null;
+    let selectedFocus = null;
+    const joinBtn = document.getElementById('join-session-btn');
+    
+    // Mood selection
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedMood = parseInt(this.dataset.mood);
+            
+            // Update UI
+            document.querySelectorAll('.mood-btn').forEach(b => {
+                b.classList.remove('bg-blue-500', 'border-blue-500');
+                b.classList.add('border-white/30');
+            });
+            this.classList.add('bg-blue-500', 'border-blue-500');
+            this.classList.remove('border-white/30');
+            
+            checkCanJoin();
+        });
+    });
+    
+    // Focus selection
+    document.querySelectorAll('.focus-option').forEach(option => {
+        option.addEventListener('click', function() {
+            selectedFocus = this.dataset.focus;
+            
+            // Update UI
+            document.querySelectorAll('.focus-option').forEach(o => {
+                o.classList.remove('border-blue-400', 'bg-white/10');
+                o.classList.add('border-white/20');
+            });
+            this.classList.add('border-blue-400', 'bg-white/10');
+            this.classList.remove('border-white/20');
+            
+            checkCanJoin();
+        });
+    });
+    
+    function checkCanJoin() {
+        joinBtn.disabled = !(selectedMood && selectedFocus);
+    }
+    
+    // Join session
+    joinBtn.addEventListener('click', async function() {
+        const notes = document.getElementById('mood-notes').value;
+        
+        joinBtn.disabled = true;
+        joinBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2 inline-block"></div>Finding your circle...';
+        
+        try {
+            const response = await fetch('/api/create-session-simple', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    realm_id: '{{ realm.id }}',
+                    mood_score: selectedMood,
+                    focus_area: selectedFocus,
+                    notes: notes
+                })
+            });
+            
+            const data = await response.json();
+            window.location.href = `/session-lobby?session=${data.session_id}`;
+        } catch (error) {
+            console.error('Error:', error);
+            joinBtn.disabled = false;
+            joinBtn.innerHTML = '<i data-lucide="users" class="w-5 h-5 mr-2 inline"></i>Find My Circle';
+        }
+    });
+});
+</script>
+{% endblock %}

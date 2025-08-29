@@ -1,0 +1,175 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}Home - Mind Shelter{% endblock %}
+
+{% block content %}
+<div class="p-4 md:p-8 max-w-7xl mx-auto">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+        <div class="glass-morphism rounded-3xl p-8 md:p-12 mb-8">
+            <div class="flex justify-center mb-6">
+                <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i data-lucide="heart" class="w-10 h-10 text-white"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                Welcome to
+                <span class="block bg-gradient-to-r from-blue-200 to-white bg-clip-text text-transparent">
+                    Mind Shelter
+                </span>
+            </h1>
+            <p class="text-xl text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed">
+                A space for personal reflection and meaningful connections. Share your experiences, 
+                listen to others, and track your journey toward better well-being.
+            </p>
+            
+            <!-- Quick stats -->
+            <div class="flex justify-center gap-8 text-center">
+                <div>
+                    <div class="text-2xl font-bold text-white">15 min</div>
+                    <div class="text-white/70 text-sm">Circle sessions</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-white">5 max</div>
+                    <div class="text-white/70 text-sm">People per circle</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-white">Safe</div>
+                    <div class="text-white/70 text-sm">Anonymous space</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Focus -->
+    <div class="mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Choose Your Focus</h2>
+        <p class="text-white/80 text-lg mb-8">What would you like to work on today?</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- Anxiety/Stress -->
+            <div class="glass-morphism border-white/10 hover:bg-blue-600/20 transition-all duration-300 group cursor-pointer transform hover:scale-105 hover:shadow-xl rounded-2xl overflow-hidden">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="heart" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-white text-xl font-semibold mb-3">Calm Mind</h3>
+                    <p class="text-white/80 mb-4 leading-relaxed">Share strategies for managing daily stress and anxiety</p>
+                    <div class="text-white/60 text-sm mb-6">
+                        <div class="flex items-center justify-center gap-1 mb-1">
+                            <i data-lucide="users" class="w-3 h-3"></i>
+                            <span>Others seeking calm</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-1">
+                            <i data-lucide="trending-down" class="w-3 h-3"></i>
+                            <span>Reduce anxiety levels</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('mood_checkin', realm='anxiety') }}" 
+                       class="block w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white border-0 rounded-xl py-3 font-medium transition-all duration-300 text-center">
+                        Join Circle
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sleep -->
+            <div class="glass-morphism border-white/10 hover:bg-blue-600/20 transition-all duration-300 group cursor-pointer transform hover:scale-105 hover:shadow-xl rounded-2xl overflow-hidden">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="moon" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-white text-xl font-semibold mb-3">Restful Nights</h3>
+                    <p class="text-white/80 mb-4 leading-relaxed">Discuss sleep challenges and share what helps you rest</p>
+                    <div class="text-white/60 text-sm mb-6">
+                        <div class="flex items-center justify-center gap-1 mb-1">
+                            <i data-lucide="users" class="w-3 h-3"></i>
+                            <span>Fellow sleep seekers</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                            <span>Improve sleep quality</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('mood_checkin', realm='sleep') }}" 
+                       class="block w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white border-0 rounded-xl py-3 font-medium transition-all duration-300 text-center">
+                        Join Circle
+                    </a>
+                </div>
+            </div>
+
+            <!-- Work Stress -->
+            <div class="glass-morphism border-white/10 hover:bg-blue-600/20 transition-all duration-300 group cursor-pointer transform hover:scale-105 hover:shadow-xl rounded-2xl overflow-hidden">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="briefcase" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-white text-xl font-semibold mb-3">Work Balance</h3>
+                    <p class="text-white/80 mb-4 leading-relaxed">Navigate work pressures and find healthy boundaries</p>
+                    <div class="text-white/60 text-sm mb-6">
+                        <div class="flex items-center justify-center gap-1 mb-1">
+                            <i data-lucide="users" class="w-3 h-3"></i>
+                            <span>Working professionals</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-1">
+                            <i data-lucide="shield" class="w-3 h-3"></i>
+                            <span>Build resilience</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('mood_checkin', realm='work_stress') }}" 
+                       class="block w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 rounded-xl py-3 font-medium transition-all duration-300 text-center">
+                        Join Circle
+                    </a>
+                </div>
+            </div>
+
+            <!-- General Positivity -->
+            <div class="glass-morphism border-white/10 hover:bg-blue-600/20 transition-all duration-300 group cursor-pointer transform hover:scale-105 hover:shadow-xl rounded-2xl overflow-hidden">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-pink-500 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="sun" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-white text-xl font-semibold mb-3">Daily Wins</h3>
+                    <p class="text-white/80 mb-4 leading-relaxed">Celebrate progress and build positive momentum</p>
+                    <div class="text-white/60 text-sm mb-6">
+                        <div class="flex items-center justify-center gap-1 mb-1">
+                            <i data-lucide="users" class="w-3 h-3"></i>
+                            <span>Positive community</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                            <span>Boost daily mood</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('mood_checkin', realm='positivity') }}" 
+                       class="block w-full bg-gradient-to-r from-yellow-500 to-pink-500 hover:from-yellow-600 hover:to-pink-600 text-white border-0 rounded-xl py-3 font-medium transition-all duration-300 text-center">
+                        Join Circle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it Works -->
+    <div class="glass-morphism rounded-2xl p-8 mb-8">
+        <h3 class="text-2xl font-bold text-white mb-6 text-center">How Mind Shelter Works</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg">1</div>
+                <h4 class="text-white font-semibold mb-2">Quick Check-in</h4>
+                <p class="text-white/70 text-sm">Rate your current mood and choose what you'd like to focus on</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg">2</div>
+                <h4 class="text-white font-semibold mb-2">Join Your Circle</h4>
+                <p class="text-white/70 text-sm">Connect with up to 4 others who share similar experiences</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg">3</div>
+                <h4 class="text-white font-semibold mb-2">Share & Grow</h4>
+                <p class="text-white/70 text-sm">Spend 15 minutes in meaningful conversation and track your progress</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
